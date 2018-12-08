@@ -44,8 +44,7 @@ bool Field::checkCollision(int figure_type, int figure_x, int figure_y, int rot)
 }
 
 int Field::checkLine() {
-	bool full = false;
-	int num_lines = 0;
+    bool full = false;
 	for (int y = 0; y < HEIGHT; y++) {
 		full = true;
         for (int x = 0; x < WIDTH; x++) {
@@ -53,7 +52,7 @@ int Field::checkLine() {
 				full = false;
         }
 		if (full) {
-			num_lines++;
+            lines_completed++;
 			deleteLine(y);
 		}
     }
@@ -96,47 +95,6 @@ void Field::init() {
         }
     }
     spawnFigure();
-}
-
-void Field::print() {
-    // create output field array
-    char print_field[HEIGHT][WIDTH];
-    for (int y = 0; y < HEIGHT; y++) {
-        for (int x = 0; x < WIDTH; x++) {
-            if (field[y][x])
-                print_field[y][x] = FILLED_CELL;
-            else
-                print_field[y][x] = ' ';
-        }
-    }
-    // add figure info to output array
-    for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 4; x++) {
-            if (getFigureCell(x, y, rotate))
-                print_field[figure_y + y][figure_x + x] = FILLED_CELL;
-        }
-    }
-    
-    // print field
-    std::cout << "+";
-    for (int x = 0; x < WIDTH; x++) {
-        std::cout << "-";
-    }
-    std::cout << "+\n";
-        
-    for (int y = 0; y < HEIGHT; y++) {
-        std::cout << "|";
-        for (int x = 0; x < WIDTH; x++) {
-            std::cout << print_field[y][x];
-        }
-        std::cout << "|\n";
-    }
-    
-    std::cout << "+";
-    for (int x = 0; x < WIDTH; x++) {
-        std::cout << "-";
-    }
-    std::cout << "+\n";
 }
 
 void Field::spawnFigure() {
@@ -199,6 +157,7 @@ void Field::next() {
                     field[figure_y + y][figure_x + x] = 1;
             }
         }
+        checkLine();
         spawnFigure();
     }
     else {
@@ -206,3 +165,30 @@ void Field::next() {
     }
 }
 
+QString Field::getFieldData() {
+    bool print_field[HEIGHT][WIDTH];
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            if (field[y][x])
+                print_field[y][x] = 1;
+            else
+                print_field[y][x] = 0;
+        }
+    }
+    // add figure info to output array
+    for (int y = 0; y < 4; y++) {
+        for (int x = 0; x < 4; x++) {
+            if (getFigureCell(x, y, rotate))
+                print_field[figure_y + y][figure_x + x] = 1;
+        }
+    }
+
+    QString data;
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            print_field[y][x] ? data += "1" : data += "0";
+        }
+    }
+
+    return data;
+}

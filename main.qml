@@ -40,6 +40,7 @@ ApplicationWindow {
                     font.pointSize: 25
 
                     onClicked: {
+                        TetrisCppCore.startGame();
                         mainStackLayout.currentIndex = 2
                     }
                 }
@@ -101,12 +102,46 @@ ApplicationWindow {
                 color: "#eee"
                 border.width: 0
 
-                DropShadow {
-                    anchors.fill: parent
-                    radius: 10
-                    color: "#000"
-                    samples: 12
-                    source: fieldRectangle
+                property string field_data;
+                property int field_width;
+                property int field_height;
+
+                Canvas  {
+                    id: canv
+                    anchors.fill: parent;
+
+                    property int sym_width: canv.width / fieldRectangle.field_width
+                    property int sym_height: canv.height / fieldRectangle.field_height
+
+                    onPaint: {
+                        var ctx =  getContext("2d");
+                        var color = Qt.rgba(255, 0, 0, 255);
+                        ctx.fillStyle = color;
+
+                        var x, y;
+                        var data = fieldRectangle.field_data.split('');
+                        for (y = 0; y < fieldRectangle.field_height; y++) {
+                            for (x = 0; x < fieldRectangle.field_width; x++) {
+                                if (data[y * fieldRectangle.field_width + x] == '1')
+                                    ctx.fillRect(canv.x + x * sym_width, canv.y + canv.height - sym_width * fieldRectangle.field_height + y * sym_width, sym_width, sym_width);
+                            }
+                        }
+                    }
+                }
+
+
+                Connections {
+                    target: TetrisCppCore
+
+                    onRepaintField: {
+                        fieldRectangle.field_data = f_data;
+                        fieldRectangle.field_width = f_width;
+                        fieldRectangle.field_height = f_height;
+
+                        var ctx = canv.getContext("2d");
+                        ctx.reset();
+                        canv.requestPaint();
+                    }
                 }
             }
 
@@ -123,6 +158,10 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillHeight: true
                     padding: 0
+
+                    onClicked: {
+                        TetrisCppCore.turnLeft();
+                    }
                 }
 
                 Button {
@@ -131,6 +170,10 @@ ApplicationWindow {
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillHeight: true
                     padding: 0
+
+                    onClicked: {
+                        TetrisCppCore.moveLeft();
+                    }
                 }
 
                 Button {
@@ -139,6 +182,10 @@ ApplicationWindow {
                     padding: 0
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillHeight: true
+
+                    onClicked: {
+                        TetrisCppCore.next();
+                    }
                 }
 
                 Button {
@@ -147,6 +194,10 @@ ApplicationWindow {
                     padding: 0
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillHeight: true
+
+                    onClicked: {
+                        TetrisCppCore.moveRight();
+                    }
                 }
 
                 Button {
@@ -155,6 +206,10 @@ ApplicationWindow {
                     padding: 0
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                     Layout.fillHeight: true
+
+                    onClicked: {
+                        TetrisCppCore.turnRight();
+                    }
                 }
             }
         }

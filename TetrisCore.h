@@ -1,8 +1,6 @@
-#include <iostream>
 #include <ctime>
 #include <cstdlib>
-#include <conio.h>
-#include <windows.h>
+#include <QString>
 
 class Field {
 private:
@@ -19,6 +17,8 @@ private:
     int rotate;
     // cycle settings
     bool game_over;
+    // game data
+    int lines_completed;
     
     // inside functions
     bool checkCollision(int figure_type, int figure_x, int figure_y, int rot); // +
@@ -29,7 +29,6 @@ private:
 public:
     Field() {srand(time(NULL));}
     void init(); // +
-    void print(); // +
     void spawnFigure(); // +
     void turnLeft(); // +
     void turnRight(); // +
@@ -37,4 +36,9 @@ public:
     void moveRight(); // +
     void next(); // +
     bool isGameOver() {return game_over;}
+
+    QString getFieldData();
+    int width() {return WIDTH;}
+    int height() {return HEIGHT;}
+    int linesCompleted() {return lines_completed;}
 };
