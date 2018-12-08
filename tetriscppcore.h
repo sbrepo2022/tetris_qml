@@ -10,10 +10,8 @@ public:
     explicit TetrisCppCore(QObject *parent = nullptr);
 
 signals:
-    void setText(QString text);
 
 public slots:
-    void onTextChange(QString text) {emit setText(text);}
 };
 
 #endif // TETRISCPPCORE_H
