@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQuick.Window 2.1
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import QtGraphicalEffects 1.0
@@ -12,9 +13,10 @@ ApplicationWindow {
 
     property double wp: width / 100
     property double hp: height / 100
+    property int pd: Screen.pixelDensity
 
-    function pd() {
-        return Screen.pixelDensity;
+    function dp(x) {
+        return pd * x;
     }
 
     StackLayout {
@@ -110,20 +112,26 @@ ApplicationWindow {
                     id: canv
                     anchors.fill: parent;
 
-                    property int sym_width: canv.width / fieldRectangle.field_width
-                    property int sym_height: canv.height / fieldRectangle.field_height
+                    property double sym_width: canv.width / fieldRectangle.field_width
+                    property double sym_height: canv.height / fieldRectangle.field_height
+                    property double sym_margin: 0.05
 
                     onPaint: {
                         var ctx =  getContext("2d");
-                        var color = Qt.rgba(255, 0, 0, 255);
-                        ctx.fillStyle = color;
+                        var color;
 
+                        color = Qt.rgba(255 / 255, 165 / 255, 0, 255 / 255);
+                        ctx.fillStyle = color;
+                        ctx.fillRect(canv.x, canv.y + canv.height - sym_width * (fieldRectangle.field_height - 1) - dp(2), canv.width, dp(2));
+
+                        color = Qt.rgba(255 / 255, 0, 0, 255 / 255);
+                        ctx.fillStyle = color;
                         var x, y;
                         var data = fieldRectangle.field_data.split('');
                         for (y = 0; y < fieldRectangle.field_height; y++) {
                             for (x = 0; x < fieldRectangle.field_width; x++) {
                                 if (data[y * fieldRectangle.field_width + x] == '1')
-                                    ctx.fillRect(canv.x + x * sym_width, canv.y + canv.height - sym_width * fieldRectangle.field_height + y * sym_width, sym_width, sym_width);
+                                    ctx.fillRect(canv.x + x * sym_width + sym_width * sym_margin, canv.y + canv.height - sym_width * fieldRectangle.field_height + y * sym_width + sym_width * sym_margin, sym_width - sym_width * sym_margin * 2, sym_width - sym_width * sym_margin * 2);
                             }
                         }
                     }
@@ -145,19 +153,22 @@ ApplicationWindow {
                 }
             }
 
-            RowLayout {
-                id: controlsLayout
-                x: 0
-                y: mw.height - 10 * mw.hp
-                width: mw.width
-                height: 10 * mw.hp
-
                 Button {
                     id: turnLeftButton
                     text: qsTr("")
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
                     padding: 0
+
+                    x: mw.width / 5 * 0
+                    y: mw.height - 10 * mw.hp
+                    width: mw.width / 5
+                    height: 10 * mw.hp
+
+                    Image {
+                        anchors.fill: parent
+                        smooth: true
+                        source: "qrc:/textures/rotate_left.svg"
+                        sourceSize: Qt.size(parent.width, parent.height)
+                    }
 
                     onClicked: {
                         TetrisCppCore.turnLeft();
@@ -167,9 +178,19 @@ ApplicationWindow {
                 Button {
                     id: moveLeftButton
                     text: qsTr("")
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
                     padding: 0
+
+                    x: mw.width / 5 * 1
+                    y: mw.height - 10 * mw.hp
+                    width: mw.width / 5
+                    height: 10 * mw.hp
+
+                    Image {
+                        anchors.fill: parent
+                        smooth: true
+                        source: "qrc:/textures/move_left.svg"
+                        sourceSize: Qt.size(parent.width, parent.height)
+                    }
 
                     onClicked: {
                         TetrisCppCore.moveLeft();
@@ -180,8 +201,18 @@ ApplicationWindow {
                     id: nextButton
                     text: qsTr("")
                     padding: 0
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
+
+                    x: mw.width / 5 * 2
+                    y: mw.height - 10 * mw.hp
+                    width: mw.width / 5
+                    height: 10 * mw.hp
+
+                    Image {
+                        anchors.fill: parent
+                        smooth: true
+                        source: "qrc:/textures/next.svg"
+                        sourceSize: Qt.size(parent.width, parent.height)
+                    }
 
                     onClicked: {
                         TetrisCppCore.next();
@@ -192,8 +223,18 @@ ApplicationWindow {
                     id: moveRightButton
                     text: qsTr("")
                     padding: 0
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
+
+                    x: mw.width / 5 * 3
+                    y: mw.height - 10 * mw.hp
+                    width: mw.width / 5
+                    height: 10 * mw.hp
+
+                    Image {
+                        anchors.fill: parent
+                        smooth: true
+                        source: "qrc:/textures/move_right.svg"
+                        sourceSize: Qt.size(parent.width, parent.height)
+                    }
 
                     onClicked: {
                         TetrisCppCore.moveRight();
@@ -204,15 +245,23 @@ ApplicationWindow {
                     id: turnRightButton
                     text: qsTr("")
                     padding: 0
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    Layout.fillHeight: true
+
+                    x: mw.width / 5 * 4
+                    y: mw.height - 10 * mw.hp
+                    width: mw.width / 5
+                    height: 10 * mw.hp
+
+                    Image {
+                        anchors.fill: parent
+                        smooth: true
+                        source: "qrc:/textures/rotate_right.svg"
+                        sourceSize: Qt.size(parent.width, parent.height)
+                    }
 
                     onClicked: {
                         TetrisCppCore.turnRight();
                     }
                 }
-            }
         }
     }
-
 }

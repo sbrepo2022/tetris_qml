@@ -5,7 +5,7 @@
 class Field {
 private:
     static const int WIDTH = 20, HEIGHT = 20;
-    static const int NUM_FIGURES = 4;
+    static const int NUM_FIGURES = 6;
     static const bool figure[NUM_FIGURES][4][4];
     
     static const char FILLED_CELL = '#';

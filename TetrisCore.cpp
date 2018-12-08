@@ -9,8 +9,8 @@ const bool Field::figure[NUM_FIGURES][4][4] = {
          {0,0,0,0}},
         
         {{0,0,0,0},
-         {0,0,0,0},
          {1,1,1,1},
+         {0,0,0,0},
          {0,0,0,0}},
         
         {{0,0,0,0},
@@ -21,6 +21,16 @@ const bool Field::figure[NUM_FIGURES][4][4] = {
         {{0,0,0,0},
          {0,1,1,1},
          {0,1,0,0},
+         {0,0,0,0}},
+
+        {{0,0,0,0},
+         {0,0,1,1},
+         {0,1,1,0},
+         {0,0,0,0}},
+
+        {{0,0,0,0},
+         {1,1,1,0},
+         {0,0,1,0},
          {0,0,0,0}}
 };
 
@@ -59,7 +69,7 @@ int Field::checkLine() {
 }
 
 void Field::deleteLine(int num_line) {
-	for (int y = num_line; y > 0; y++) {
+    for (int y = num_line; y > 0; y--) {
 		for (int x = 0; x < WIDTH; x++) {
 			field[y][x] = field[y - 1][x];
 		}
@@ -98,7 +108,7 @@ void Field::init() {
 }
 
 void Field::spawnFigure() {
-    int type = rand() % 4;
+    int type = rand() % NUM_FIGURES;
     int x = WIDTH / 2 - 1;
     int y = 0;
     int rot = 0;
