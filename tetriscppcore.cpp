@@ -14,6 +14,9 @@ void TetrisCppCore::startGame() {
 
 void TetrisCppCore::next() {
     field.next();
+    if (field.isGameOver()) {
+        emit gameOver();
+    }
     emit repaintField(field.getFieldData(), field.width(), field.height());
 }
 

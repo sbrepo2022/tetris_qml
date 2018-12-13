@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Software);
+    //QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Software);
     QGuiApplication app(argc, argv);
 
     TetrisCppCore app_core;

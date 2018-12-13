@@ -17,6 +17,7 @@ private:
 
 signals:
     void repaintField(QString f_data, int f_width, int f_height);
+    void gameOver();
 
 public slots:
     void startGame();

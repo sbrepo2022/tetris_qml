@@ -96,17 +96,17 @@ ApplicationWindow {
 
             Rectangle {
                 id: fieldRectangle
-                x: 2 * mw.wp
-                y: 2 * mw.wp
-                width: 96 * mw.wp
-                height: 90 * mw.hp - 4 * mw.wp
-
-                color: "#eee"
-                border.width: 0
-
                 property string field_data;
                 property int field_width;
                 property int field_height;
+
+                x: 96 * mw.wp / field_width * field_height < 90 * mw.hp ? 2 * mw.wp : (mw.wp * 100 - 90 * mw.hp / field_height * field_width) / 2
+                y: 2 * mw.hp
+                width: 96 * mw.wp / field_width * field_height < 90 * mw.hp ? 96 * mw.wp : 90 * mw.hp / field_height * field_width
+                height: 90 * mw.hp - 4 * mw.hp
+
+                color: "#eee"
+                border.width: 0
 
                 Canvas  {
                     id: canv
@@ -124,19 +124,93 @@ ApplicationWindow {
                         ctx.fillStyle = color;
                         ctx.fillRect(canv.x, canv.y + canv.height - sym_width * (fieldRectangle.field_height - 1) - dp(2), canv.width, dp(2));
 
-                        color = Qt.rgba(255 / 255, 0, 0, 255 / 255);
-                        ctx.fillStyle = color;
                         var x, y;
                         var data = fieldRectangle.field_data.split('');
                         for (y = 0; y < fieldRectangle.field_height; y++) {
                             for (x = 0; x < fieldRectangle.field_width; x++) {
-                                if (data[y * fieldRectangle.field_width + x] == '1')
+                                if (data[y * fieldRectangle.field_width + x] != '0') {
+                                    if (data[y * fieldRectangle.field_width + x] == '1')
+                                        color = Qt.rgba(255 / 255, 0, 0, 255 / 255);
+                                    if (data[y * fieldRectangle.field_width + x] == '2')
+                                        color = Qt.rgba(0, 255 / 255, 0, 255 / 255);
+                                    if (data[y * fieldRectangle.field_width + x] == '3')
+                                        color = Qt.rgba(0, 0, 255 / 255, 255 / 255);
+                                    if (data[y * fieldRectangle.field_width + x] == '4')
+                                        color = Qt.rgba(255 / 255, 255 / 255, 0, 255 / 255);
+                                    if (data[y * fieldRectangle.field_width + x] == '5')
+                                        color = Qt.rgba(255 / 255, 0, 255 / 255, 255 / 255);
+                                    if (data[y * fieldRectangle.field_width + x] == '6')
+                                        color = Qt.rgba(0, 255 / 255, 255 / 255, 255 / 255);
+                                    ctx.fillStyle = color;
                                     ctx.fillRect(canv.x + x * sym_width + sym_width * sym_margin, canv.y + canv.height - sym_width * fieldRectangle.field_height + y * sym_width + sym_width * sym_margin, sym_width - sym_width * sym_margin * 2, sym_width - sym_width * sym_margin * 2);
+                                }
                             }
                         }
                     }
                 }
 
+                Rectangle {
+                    id: gameOverRect
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter;
+                    anchors.verticalCenterOffset: parent.height / 2 + height
+                    visible: false
+                    state: "state1"
+
+                    color: "#fff"
+                    radius: dp(4)
+                    width: mw.widht < mw.height ? gameOverText.width +  10 * mw.wp : gameOverText.width +  10 * mw.hp
+                    height: mw.widht < mw.height ? gameOverText.height + 10 * mw.wp : gameOverText.height +  10 * mw.hp
+                    layer.enabled: true
+                    layer.effect: DropShadow {
+                        anchors.fill: gameOverRect
+                        //cached: true
+                        verticalOffset: dp(4)
+                        spread: 0
+                        radius: dp(12)
+                        samples: dp(48)
+                        color: "#80000000"
+                        source: gameOverRect
+                    }
+                    states: [
+                        State {
+                            name: "state1"
+                            PropertyChanges {
+                                target:gameOverRect
+                                anchors.verticalCenterOffset: fieldRectangle.height / 2 + height
+                            }
+                        },
+                        State {
+                            name: "state2"
+                            PropertyChanges {
+                                target:gameOverRect
+                                anchors.verticalCenterOffset: 0
+                            }
+                        }
+                    ]
+
+                    transitions: [
+                        Transition {
+                            from: "state1"
+                            to: "state2"
+                            PropertyAnimation {
+                                target: gameOverRect
+                                properties: "anchors.verticalCenterOffset"
+                                duration: 1000
+                                easing.type: Easing.OutBack
+                                easing.amplitude: 0.45
+                            }
+                        }
+                    ]
+
+                    Label {
+                        id: gameOverText
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter;
+                        text: qsTr("Поражение!")
+                        font.pointSize: 30
+                    }
+                }
 
                 Connections {
                     target: TetrisCppCore
@@ -150,118 +224,123 @@ ApplicationWindow {
                         ctx.reset();
                         canv.requestPaint();
                     }
+
+                    onGameOver: {
+                        gameOverRect.visible = true;
+                        gameOverRect.state = "state2"
+                    }
                 }
             }
 
-                Button {
-                    id: turnLeftButton
-                    text: qsTr("")
-                    padding: 0
+            Button {
+                id: turnRightButton
+                text: qsTr("")
+                padding: 0
 
-                    x: mw.width / 5 * 0
-                    y: mw.height - 10 * mw.hp
-                    width: mw.width / 5
-                    height: 10 * mw.hp
+                x: mw.width / 5 * 0
+                y: mw.height - 10 * mw.hp
+                width: mw.width / 5
+                height: 10 * mw.hp
 
-                    Image {
-                        anchors.fill: parent
-                        smooth: true
-                        source: "qrc:/textures/rotate_left.svg"
-                        sourceSize: Qt.size(parent.width, parent.height)
-                    }
-
-                    onClicked: {
-                        TetrisCppCore.turnLeft();
-                    }
+                Image {
+                    anchors.fill: parent
+                    smooth: true
+                    source: "qrc:/textures/rotate_right.svg"
+                    sourceSize: Qt.size(parent.width, parent.height)
                 }
 
-                Button {
-                    id: moveLeftButton
-                    text: qsTr("")
-                    padding: 0
+                onClicked: {
+                    TetrisCppCore.turnRight();
+                }
+            }
 
-                    x: mw.width / 5 * 1
-                    y: mw.height - 10 * mw.hp
-                    width: mw.width / 5
-                    height: 10 * mw.hp
+            Button {
+                id: moveLeftButton
+                text: qsTr("")
+                padding: 0
 
-                    Image {
-                        anchors.fill: parent
-                        smooth: true
-                        source: "qrc:/textures/move_left.svg"
-                        sourceSize: Qt.size(parent.width, parent.height)
-                    }
+                x: mw.width / 5 * 1
+                y: mw.height - 10 * mw.hp
+                width: mw.width / 5
+                height: 10 * mw.hp
 
-                    onClicked: {
-                        TetrisCppCore.moveLeft();
-                    }
+                Image {
+                    anchors.fill: parent
+                    smooth: true
+                    source: "qrc:/textures/move_left.svg"
+                    sourceSize: Qt.size(parent.width, parent.height)
                 }
 
-                Button {
-                    id: nextButton
-                    text: qsTr("")
-                    padding: 0
+                onClicked: {
+                    TetrisCppCore.moveLeft();
+                }
+            }
 
-                    x: mw.width / 5 * 2
-                    y: mw.height - 10 * mw.hp
-                    width: mw.width / 5
-                    height: 10 * mw.hp
+            Button {
+                id: nextButton
+                text: qsTr("")
+                padding: 0
 
-                    Image {
-                        anchors.fill: parent
-                        smooth: true
-                        source: "qrc:/textures/next.svg"
-                        sourceSize: Qt.size(parent.width, parent.height)
-                    }
+                x: mw.width / 5 * 2
+                y: mw.height - 10 * mw.hp
+                width: mw.width / 5
+                height: 10 * mw.hp
 
-                    onClicked: {
-                        TetrisCppCore.next();
-                    }
+                Image {
+                    anchors.fill: parent
+                    smooth: true
+                    source: "qrc:/textures/next.svg"
+                    sourceSize: Qt.size(parent.width, parent.height)
                 }
 
-                Button {
-                    id: moveRightButton
-                    text: qsTr("")
-                    padding: 0
+                onClicked: {
+                    TetrisCppCore.next();
+                }
+            }
 
-                    x: mw.width / 5 * 3
-                    y: mw.height - 10 * mw.hp
-                    width: mw.width / 5
-                    height: 10 * mw.hp
+            Button {
+                id: moveRightButton
+                text: qsTr("")
+                padding: 0
 
-                    Image {
-                        anchors.fill: parent
-                        smooth: true
-                        source: "qrc:/textures/move_right.svg"
-                        sourceSize: Qt.size(parent.width, parent.height)
-                    }
+                x: mw.width / 5 * 3
+                y: mw.height - 10 * mw.hp
+                width: mw.width / 5
+                height: 10 * mw.hp
 
-                    onClicked: {
-                        TetrisCppCore.moveRight();
-                    }
+                Image {
+                    anchors.fill: parent
+                    smooth: true
+                    source: "qrc:/textures/move_right.svg"
+                    sourceSize: Qt.size(parent.width, parent.height)
                 }
 
-                Button {
-                    id: turnRightButton
-                    text: qsTr("")
-                    padding: 0
-
-                    x: mw.width / 5 * 4
-                    y: mw.height - 10 * mw.hp
-                    width: mw.width / 5
-                    height: 10 * mw.hp
-
-                    Image {
-                        anchors.fill: parent
-                        smooth: true
-                        source: "qrc:/textures/rotate_right.svg"
-                        sourceSize: Qt.size(parent.width, parent.height)
-                    }
-
-                    onClicked: {
-                        TetrisCppCore.turnRight();
-                    }
+                onClicked: {
+                    TetrisCppCore.moveRight();
                 }
+            }
+
+            Button {
+                id: turnLeftButton
+                text: qsTr("")
+                padding: 0
+
+                x: mw.width / 5 * 4
+                y: mw.height - 10 * mw.hp
+                width: mw.width / 5
+                height: 10 * mw.hp
+
+                Image {
+                    anchors.fill: parent
+                    smooth: true
+                    source: "qrc:/textures/rotate_left.svg"
+                    sourceSize: Qt.size(parent.width, parent.height)
+                }
+
+                onClicked: {
+                    TetrisCppCore.turnLeft();
+                }
+            }
         }
     }
 }
